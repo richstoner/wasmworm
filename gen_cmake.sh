@@ -1,0 +1,1 @@
+cmake -DCMAKE_TOOLCHAIN_FILE=/Users/richstoner/github/science/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" .

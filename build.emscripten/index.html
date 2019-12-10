@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Worm Wasm - POC</title>
+		<script type="text/javascript" src="./wormsim.js"></script>
+		<script type="text/javascript" src="./two.min.js"></script>
+	</head>
+	<style type="text/css">
+
+		html {
+			background: black;
+			color: #ccc;
+		}
+
+		a {
+			color: #67CB3B;
+		}
+
+		.pad {
+			position: absolute;
+			padding:10px;
+			margin: 10px;
+		}
+	</style>
+	<body>
+		<div><span class="pad"><strong>WormWasm Simulation</strong><br>
+			<b>SPACE</b> to pause/resume. <b>r</b> to reset<br>
+			<a href="githuburl">github source</a></span></div>
+
+		<div id="draw-shapes"></div>
+		<script type="text/javascript">
+
+		// I make no apologies for this source code. afternoon hackathon to demonstrate proof of concept
+
+		var get_body_points = function(_worm) {
+			var body_points = [];
+			for(var i=0; i<48*3; i+=3){
+				var px = _worm.get_body_point(i)
+				var py = _worm.get_body_point(i+1)
+				var pz = _worm.get_body_point(i+2)
+				body_points.push([px, py, pz]);
+			}
+			return body_points
+		}
+
+		var worm = undefined;
+		var run_sim = false;
+
+		// worm simulation init
+		var toggle = function() {
+			run_sim = !run_sim
+		}
+
+		document.addEventListener('keydown', function(event) {
+			console.log(event.keyCode)
+		    if(event.keyCode == 32) {
+		        toggle();
+		    } else if (event.keyCode == 82) {
+		    	console.log("reset simulation")
+		    	if (worm != undefined) {
+		    		worm.init()
+		    	}
+		    }
+		});
+		
+		Module.onRuntimeInitialized = _ => {
+			console.log("Wormsim wasm module initialized.")
+			worm = new Module.wormsim()
+			worm.init();
+			setSize();
+		};
+
+		// a quick visualization of the worm using two.js
+		
+		var circles = []
+
+		var elem = document.getElementById('draw-shapes');
+		var params = { fullscreen: true, type: Two.Types.webgl};
+		var two = new Two(params).appendTo(elem);
+		
+		for (var body_cursor=0; body_cursor < 48;body_cursor++) {
+			var circle = two.makeCircle(window.innerWidth, window.innerHeight, 3);
+			circle.noStroke().fill = '#67CB3B';
+			circles.push(circle)
+		}
+
+
+		// Bind to the refresh
+		two.bind('update', function(frameCount) {
+
+			if (worm != undefined && run_sim){
+				worm.step(0);
+				var body = get_body_points(worm)
+				for (var i=0; i<body.length;i++){
+					var b0 = body[i]
+					var b0x = width/2 + b0[0]*200000 
+					var b0y = height/2 + b0[1]*200000
+					circles[i].translation.set(b0x, b0y)
+				}
+			}
+		}).play();  
+
+
+		// two.js resize
+		function setSize() {
+		  width = window.innerWidth;
+		  height = window.innerHeight;
+		  two.renderer.setSize(width, height);
+		}
+
+		two.bind('resize', function() {
+		  two.scene.translation.set(width / 2, height / 2);
+		});
+
+
+
+
+		</script>
+	</body>
+</html>
