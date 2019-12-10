@@ -1,5 +1,5 @@
 
 ### Working port of neuromechanical c elegans simulation to webassembly
 
-Rushed code, but working!
+Rushed code, but working. Details to follow.
 
