@@ -1,6 +1,8 @@
 
 ### Working port of neuromechanical c elegans simulation to webassembly
 
+Demo on netlify: https://angry-goodall-cd67bb.netlify.com
+
 Rushed code, but working. Details to follow.
 
 Derived from: 
